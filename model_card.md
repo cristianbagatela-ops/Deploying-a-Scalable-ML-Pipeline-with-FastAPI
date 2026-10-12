@@ -2,11 +2,7 @@
 
 ## Model Details
 
-- **Model:** Scikit-learn `RandomForestClassifier`
-- **Version:** Initial project model, trained with random seed 42
-- **Configuration:** 100 trees, maximum depth 10, minimum 2 samples per leaf
-- **Preprocessing:** One-hot encoding for categorical features; continuous features are passed through without scaling. Unknown categories are ignored by the encoder.
-- **Artifacts:** The trained classifier and fitted encoder are stored in `model/`.
+The model is a scikit-learn `RandomForestClassifier`, trained with random seed 42. It uses 100 trees, a maximum depth of 10, and a minimum of two samples per leaf. Categorical features are one-hot encoded, while numeric features pass through without scaling; the encoder ignores categories it did not see during training. The trained classifier and fitted encoder are stored in `model/`.
 
 ## Intended Use
 
@@ -24,11 +20,7 @@ The held-out evaluation partition contains 6,513 rows and is not used to fit the
 
 ## Metrics
 
-On the held-out partition:
-
-- **Precision:** 0.8074
-- **Recall:** 0.5427
-- **F1 score:** 0.6491
+On the held-out partition, the model achieved a precision of 0.8074, a recall of 0.5427, and an F1 score of 0.6491.
 
 The slice report includes precision, recall, and F1 for each value of each categorical feature. Metrics for very small slices are unstable; for example, a slice with one row can show a perfect score without providing meaningful evidence of performance.
 
