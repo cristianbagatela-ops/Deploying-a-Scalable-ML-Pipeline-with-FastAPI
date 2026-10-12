@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import pytest
 from sklearn.ensemble import RandomForestClassifier
 
 from ml.data import process_data
@@ -40,23 +41,27 @@ def test_model_can_be_saved_and_loaded(tmp_path):
     )
 
 
-def test_categorical_slice_returns_precision_recall_and_f1():
-    """Slice scoring evaluates only rows with the requested category value."""
+def test_categorical_slice_returns_expected_precision_recall_and_f1():
+    """Slice scoring matches hand-calculated metrics for controlled predictions."""
     train = pd.DataFrame(
         {
-            "group": ["A", "A", "B", "B"],
-            "income": [10, 20, 30, 40],
-            "salary": ["<=50K", ">50K", "<=50K", ">50K"],
+            "group": ["A", "A", "A", "A", "B", "B"],
+            "income": [10, 20, 30, 40, 50, 60],
+            "salary": [">50K", ">50K", ">50K", "<=50K", "<=50K", ">50K"],
         }
     )
     categorical_features = ["group"]
-    X_train, y_train, encoder, label_binarizer = process_data(
+    _, _, encoder, label_binarizer = process_data(
         train,
         categorical_features=categorical_features,
         label="salary",
         training=True,
     )
-    model = train_model(X_train, y_train)
+
+    class FixedPredictionModel:
+        def predict(self, features):
+            assert features.shape[0] == 4
+            return np.array([1, 0, 0, 0])
 
     metrics = performance_on_categorical_slice(
         train,
@@ -66,8 +71,7 @@ def test_categorical_slice_returns_precision_recall_and_f1():
         "salary",
         encoder,
         label_binarizer,
-        model,
+        FixedPredictionModel(),
     )
 
-    assert len(metrics) == 3
-    assert all(0.0 <= metric <= 1.0 for metric in metrics)
+    assert metrics == pytest.approx((1.0, 1 / 3, 0.5))
